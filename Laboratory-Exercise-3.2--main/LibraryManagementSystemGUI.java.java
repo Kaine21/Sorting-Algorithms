@@ -1,0 +1,284 @@
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Stack;
+
+public class LibraryManagementSystemGUI extends JFrame {
+    private Library library = new Library();
+
+    public LibraryManagementSystemGUI() {
+        ImageIcon img = new ImageIcon(LibraryManagementSystemGUI.class.getResource("/book blue.png"));
+        this.setIconImage(img.getImage());
+
+        setTitle("Library Management System");
+        setSize(600, 500);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        // Set Look and Feel
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
+        }
+        JTextArea displayArea = new JTextArea(15, 40);
+        displayArea.setEditable(false);
+        displayArea.setFont(new Font("SansSerif", Font.BOLD, 14));
+        displayArea.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        displayArea.setBackground(new Color(216, 216, 216)); // Set background color
+
+        JButton addButton = new JButton("Add Book");
+        JButton removeButton = new JButton("Remove Book by Title");
+        JButton searchButton = new JButton("Search Book by Index");
+        JButton displayButton = new JButton("Display All Books");
+        JButton totalButton = new JButton("Total Number of Books");
+        JButton undoButton = new JButton("Undo");
+        JButton exitButton = new JButton("Exit"); // Exit button
+
+        // Set font, background color, and border for buttons
+        Font buttonFont = new Font("SansSerif", Font.BOLD, 14);
+        Color buttonColor = new Color(22,102,186);
+
+        JButton[] buttons = {addButton, removeButton, searchButton, displayButton, totalButton, undoButton, exitButton};
+        for (JButton button : buttons) {
+            button.setFont(buttonFont);
+            button.setBackground(buttonColor);
+            button.setForeground(Color.WHITE);
+            button.setOpaque(true); // Ensures the background color is painted
+            button.setBorderPainted(false); // Disables the border painting
+            button.setFocusPainted(false);  // Removes the focus border
+        }
+
+        // Create a font for labels
+        Font labelFont = new Font("SansSerif", Font.BOLD, 14);
+
+        // Layout setup
+        getContentPane().setLayout(new BorderLayout());
+        getContentPane().setBackground(Color.GRAY); // Set background color of the frame
+
+        JPanel inputPanel = new JPanel();
+        inputPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        inputPanel.setBackground(new Color(22, 102, 186)); // Set background color of the input panel
+        GridBagLayout gbl_inputPanel = new GridBagLayout();
+        gbl_inputPanel.columnWidths = new int[]{277, 87, 200, 0};
+        gbl_inputPanel.rowHeights = new int[]{20, 20, 0};
+        gbl_inputPanel.columnWeights = new double[]{1.0, 0.0, 1.0, Double.MIN_VALUE};
+        gbl_inputPanel.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+        inputPanel.setLayout(gbl_inputPanel);
+
+        JLabel LogoPic = new JLabel("Library Management System");
+        LogoPic.setFont(new Font("SansSerif", Font.BOLD, 16));
+        LogoPic.setForeground(Color.WHITE);
+        LogoPic.setIcon(new ImageIcon(LibraryManagementSystemGUI.class.getResource("/book.png")));
+        GridBagConstraints gbc_LogoPic = new GridBagConstraints();
+        gbc_LogoPic.gridheight = 2;
+        gbc_LogoPic.insets = new Insets(0, 0, 5, 5);
+        gbc_LogoPic.gridx = 0;
+        gbc_LogoPic.gridy = 0;
+        inputPanel.add(LogoPic, gbc_LogoPic);
+
+        JLabel bookLabel = new JLabel("Book Title:");
+        bookLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        bookLabel.setForeground(Color.WHITE);
+        bookLabel.setFont(labelFont); // Set font for book title label
+
+        GridBagConstraints gbc_bookLabel = new GridBagConstraints();
+        gbc_bookLabel.fill = GridBagConstraints.BOTH;
+        gbc_bookLabel.insets = new Insets(0, 0, 5, 5);
+        gbc_bookLabel.gridx = 1;
+        gbc_bookLabel.gridy = 0;
+        inputPanel.add(bookLabel, gbc_bookLabel);
+
+        // Create components
+        JTextField bookField = new JTextField(20);
+        GridBagConstraints gbc_bookField = new GridBagConstraints();
+        gbc_bookField.fill = GridBagConstraints.BOTH;
+        gbc_bookField.insets = new Insets(0, 0, 5, 0);
+        gbc_bookField.gridx = 2;
+        gbc_bookField.gridy = 0;
+        inputPanel.add(bookField, gbc_bookField);
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(4, 2, 10 , 10));
+        buttonPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        buttonPanel.setBackground(Color.WHITE); // Set background color of the button panel
+        buttonPanel.add(addButton);
+        buttonPanel.add(removeButton);
+        buttonPanel.add(searchButton);
+        buttonPanel.add(displayButton);
+        buttonPanel.add(totalButton);
+        buttonPanel.add(undoButton);
+        buttonPanel.add(exitButton); // Add exit button to the panel
+
+        getContentPane().add(inputPanel, BorderLayout.NORTH);
+        JLabel indexLabel = new JLabel("Index:");
+        indexLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        indexLabel.setForeground(Color.WHITE);
+        indexLabel.setFont(labelFont); // Set font for index label
+        GridBagConstraints gbc_indexLabel = new GridBagConstraints();
+        gbc_indexLabel.fill = GridBagConstraints.BOTH;
+        gbc_indexLabel.insets = new Insets(0, 0, 0, 5);
+        gbc_indexLabel.gridx = 1;
+        gbc_indexLabel.gridy = 1;
+        inputPanel.add(indexLabel, gbc_indexLabel);
+        JTextField indexField = new JTextField(5);
+        GridBagConstraints gbc_indexField = new GridBagConstraints();
+        gbc_indexField.fill = GridBagConstraints.BOTH;
+        gbc_indexField.gridx = 2;
+        gbc_indexField.gridy = 1;
+        inputPanel.add(indexField, gbc_indexField);
+        getContentPane().add(new JScrollPane(displayArea), BorderLayout.CENTER);
+        getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+
+  // Add book action
+        addButton.addActionListener(e -> {
+            String book = bookField.getText();
+            if (!book.isEmpty()) {
+                library.add(book);
+                displayArea.setText("Book added: " + book + "\n" + library.displayBooks());
+                bookField.setText("");
+            } else {
+                JOptionPane.showMessageDialog(null, "Please enter a book title.");
+            }
+        });
+
+        // Remove book by title action
+        removeButton.addActionListener(e -> {
+            String book = bookField.getText();
+            if (!book.isEmpty()) {
+                boolean removed = library.remove(book);
+                if (removed) {
+                    displayArea.setText("Book removed: " + book + "\n" + library.displayBooks());
+                } else {
+                    displayArea.setText("Book not found: " + book);
+                }
+                bookField.setText("");
+            } else {
+                JOptionPane.showMessageDialog(null, "Please enter a book title.");
+            }
+        });
+
+  // Search book by index action
+        searchButton.addActionListener(e -> {
+            try {
+                int index = Integer.parseInt(indexField.getText()) - 1;
+                String book = library.get(index);
+                displayArea.setText("Book at index " + (index + 1) + ": " + book);
+            } catch (NumberFormatException | IndexOutOfBoundsException ex) {
+                JOptionPane.showMessageDialog(null, "Invalid index. Please enter a valid number.");
+            }
+        });
+
+ // Display all books action
+        displayButton.addActionListener(e -> displayArea.setText(library.displayBooks()));
+
+        // Display total number of books action
+        totalButton.addActionListener(e -> displayArea.setText("Total Number of Books: " + library.size()));
+
+        // Undo action
+        undoButton.addActionListener(e -> {
+            library.undo();
+            displayArea.setText(library.displayBooks());
+        });
+
+        // Exit button action
+        exitButton.addActionListener(e -> System.exit(0)); // Exits the application
+
+        // Initialize the GUI
+        setVisible(true);
+    }
+
+class Library {
+        private ArrayList<String> books;
+        private final Stack<ArrayList<String>> undoStack;
+
+        public Library() {
+            books = new ArrayList<>();
+            undoStack = new Stack<>();
+        }
+
+        public void add(String book) {
+            undoStack.push(new ArrayList<>(books));
+            int index = 0;
+            while (index < books.size() && books.get(index).compareTo(book) < 0) {
+                index++;
+            }
+            books.add(index, book);
+        }
+
+        public boolean remove(String book) {
+            undoStack.push(new ArrayList<>(books));
+            for (int i = 0; i < books.size(); i++) {
+                if (books.get(i).equalsIgnoreCase(book)) {
+                    books.remove(i);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public void undo() {
+            if (!undoStack.isEmpty()) {
+                books = undoStack.pop();
+            }
+        }
+
+        public String get(int index) {
+            if (index < 0 || index >= books.size()) {
+                throw new IndexOutOfBoundsException("Index out of bounds");
+            }
+            return books.get(index);
+        }
+
+        public int size() {
+            return books.size();
+        }
+
+        public String displayBooks() {
+            if (books.isEmpty()) {
+                return "No books available.";
+            }
+            String[] bookArray = books.toArray(new String[0]);
+            insertionSort(bookArray);
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < bookArray.length; i++) {
+                sb.append((i + 1)).append(". ").append(bookArray[i]).append("\n");
+            }
+            return sb.toString();
+        }
+
+        private void insertionSort(String[] array) {
+            int n = array.length;
+            for (int i = 1; i < n ; ++i) {
+                String key = array[i];
+                int j = i - 1;
+                while (j >= 0 && array[j].compareTo(key) > 0) {
+                    array[j + 1] = array[j];
+                    j = j - 1;
+                }
+                array[j + 1] = key;
+            }
+        }
+    }
+
+ public static void main(String[] args) {
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName ());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(LibraryManagementSystemGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+       
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(() -> {
+            new LibraryManagementSystemGUI().setVisible(true);
+        });
+    }
+}
